@@ -90,6 +90,18 @@ function updateSystem() {
   fi
 }
 
+function installDocker() {
+  apt -yq update
+  apt -yq upgrade
+  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  apt -yq update
+  apt-get -yq install docker-ce docker-ce-cli containerd.io
+  systemctl enable docker
+  systemctl start docker
+}
+
 function setupSystem() {
   chmod +x ${MYNAME}
 
@@ -120,6 +132,7 @@ function setupSystem() {
   } | crontab -
 
   updateSystem
+  installDocker
 }
 
 case $command in
