@@ -20,6 +20,10 @@ while [[ $# -gt 0 ]] ; do
         shift
         shift
       ;;
+    --docker)
+        DOCKERINSTALL="1"
+        shift
+      ;;
     --floating-ips)
         FLOATING_IPS="--floating-ips"
         shift
@@ -134,7 +138,10 @@ function setupSystem() {
   } | crontab -
 
   updateSystem
-  installDocker
+
+  if [ -n "$DOCKERINSTALL" ]; then
+    installDocker
+  fi
 }
 
 case $command in
