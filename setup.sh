@@ -114,7 +114,7 @@ function setupSystem() {
   ufw -f default deny incoming
   ufw -f default allow outgoing
 
-  #echo "*/5 * * * * root ${MYNAME} update --hcloud-token ${TOKEN} --whitelisted-ips ${WHITELIST_S} ${FLOATING_IPS}" >> /etc/crontab
+  crontab -l | { cat; echo "*/5 * * * * root ${MYNAME} update --hcloud-token ${TOKEN} --whitelisted-ips ${WHITELIST_S} ${FLOATING_IPS}" } | crontab -
 
   updateSystem
 }
