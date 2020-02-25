@@ -116,7 +116,7 @@ function setupSystem() {
 
   crontab -l | {
     cat
-    echo "*/5 * * * * root ${MYNAME} update --hcloud-token ${TOKEN} --whitelisted-ips ${WHITELIST_S} ${FLOATING_IPS}"
+    echo "*/5 * * * * ${MYNAME} update --hcloud-token ${TOKEN} --whitelisted-ips ${WHITELIST_S} ${FLOATING_IPS}"
   } | crontab -
 
   updateSystem
