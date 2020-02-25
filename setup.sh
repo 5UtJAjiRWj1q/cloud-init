@@ -32,6 +32,8 @@ done
 
 FLOATING_IPS=${FLOATING_IPS:-""}
 
+export DEBIAN_FRONTEND=noninteractive
+
 function apt-get() {
   i=0
   tput sc
