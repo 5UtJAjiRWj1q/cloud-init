@@ -114,8 +114,6 @@ function installDocker() {
 }
 
 function installDefaultSoftware() {
-#  apt -yq update
-#  apt -yq upgrade
   apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc
   cat > $HOME/.bash_aliases <<EOF
 alias l='ls -CF'
@@ -185,13 +183,24 @@ FLOATING_IPS=${FLOATING_IPS}
 EOF
 }
 
-function setupSystem() {
-  chmod +x ${MYNAME}
-
+function disablePasswordAuthentication() {
   sed -i 's/[#]*PermitRootLogin yes/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config
   sed -i 's/[#]*PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 
   systemctl restart sshd
+}
+
+function setupSystem() {
+  chmod +x ${MYNAME}
+
+  disablePasswordAuthentication
+
+  # 1min warten so dass rancher installieren kann
+  sleep 60
+
+  apt -yq update
+  apt -yq upgrade
+
   apt-get install -yq jq ufw fail2ban
 
   ${ufw} allow proto tcp from any to any port 22,80,443
