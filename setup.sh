@@ -114,8 +114,8 @@ function installDocker() {
 }
 
 function installDefaultSoftware() {
-  apt -yq update
-  apt -yq upgrade
+#  apt -yq update
+#  apt -yq upgrade
   apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc
   cat > $HOME/.bash_aliases <<EOF
 alias l='ls -CF'
@@ -164,12 +164,12 @@ EOF
 }
 
 function installPostfix() {
-  debconf-set-selections <<< "postfix postfix/mailname string $(hostname -s).cluster.proventis.info"
+  mailhost="server-$(hostname -s).cluster.proventis.info"
+  debconf-set-selections <<< "postfix postfix/mailname string ${mailhost}"
   debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
   apt-get -yq install postfix
   echo "root: server-$(hostname -s)@proventis.net" >> /etc/aliases
   newaliases
-  mailhost="server-$(hostname -s).cluster.proventis.info"
   postconf -e "inet_interfaces=loopback-only"
   postconf -e "myhostname=${mailhost}"
   postconf -e "mydomain=${mailhost}"
@@ -194,8 +194,8 @@ function setupSystem() {
   systemctl restart sshd
   apt-get install -yq jq ufw fail2ban
 
-  ufw allow proto tcp from any to any port 22,80,443
-  ufw -f enable
+  ${ufw} allow proto tcp from any to any port 22,80,443
+  ${ufw} -f enable
 
   IFS=', ' read -r -a WHITELIST <<< "$WHITELIST_S"
 
@@ -203,11 +203,11 @@ function setupSystem() {
     ufw allow from "$IP"
   done
 
-  ufw allow from 10.43.0.0/16
-  ufw allow from 10.42.0.0/16
+  ${ufw} allow from 10.43.0.0/16
+  ${ufw} allow from 10.42.0.0/16
 
-  ufw -f default deny incoming
-  ufw -f default allow outgoing
+  ${ufw} -f default deny incoming
+  ${ufw} -f default allow outgoing
 
   crontab -l | {
     cat
