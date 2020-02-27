@@ -122,6 +122,7 @@ alias l='ls -CF'
 alias mc='. /usr/share/mc/bin/mc-wrapper.sh'
 export EDITOR=mcedit
 EOF
+  echo 'SELECTED_EDITOR="/usr/bin/mcedit"' > $HOME/.selected_editor
 }
 
 function setupCACertificate() {
@@ -166,9 +167,9 @@ function installPostfix() {
   debconf-set-selections <<< "postfix postfix/mailname string $(hostname -s).cluster.proventis.info"
   debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
   apt-get -yq install postfix
-  echo "root: webmaster@proventis.net" >> /etc/aliases
+  echo "root: server-$(hostname -s)@proventis.net" >> /etc/aliases
   newaliases
-  mailhost="$(hostname -f).cluster.proventis.info"
+  mailhost="server-$(hostname -s).cluster.proventis.info"
   postconf -e "inet_interfaces=loopback-only"
   postconf -e "myhostname=${mailhost}"
   postconf -e "mydomain=${mailhost}"
@@ -229,7 +230,7 @@ case $command in
     setupSystem
     ;;
   update)
-    updateSystem
+    updateSystem > /dev/null
     ;;
   *)
     echo "unknown command!"
