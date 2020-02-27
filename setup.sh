@@ -39,7 +39,8 @@ done
 FLOATING_IPS=${FLOATING_IPS:-""}
 
 export DEBIAN_FRONTEND=noninteractive
-alias ufw=/usr/sbin/ufw
+
+ufw=/usr/sbin/ufw
 
 function apt-get() {
   i=0
@@ -72,7 +73,7 @@ function updateSystem() {
   echo "" > /etc/current_node_ips
 
   for IP in "${NEW_NODE_IPS[@]}"; do
-    ufw allow from "$IP"
+    ${ufw} allow from "$IP"
     echo "$IP" >> /etc/current_node_ips
   done
 
@@ -89,7 +90,7 @@ function updateSystem() {
   declare -a REMOVED
 
   for IP in "${REMOVED[@]}"; do
-    ufw deny from "$IP"
+    ${ufw} deny from "$IP"
   done
 
   FLOATING_IPS=${FLOATING_IPS:-"0"}
@@ -104,15 +105,23 @@ function updateSystem() {
 }
 
 function installDocker() {
-  apt -yq update
-  apt -yq upgrade
-  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   apt -yq update
   apt-get -yq install docker-ce docker-ce-cli containerd.io
   systemctl enable docker
   systemctl start docker
+}
+
+function installDefaultSoftware() {
+  apt -yq update
+  apt -yq upgrade
+  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc
+  cat > $HOME/.bash_aliases <<EOF
+alias l='ls -CF'
+alias mc='. /usr/share/mc/bin/mc-wrapper.sh'
+export EDITOR=mcedit
+EOF
 }
 
 function setupCACertificate() {
@@ -204,6 +213,8 @@ function setupSystem() {
     echo "* * * * * ${MYNAME}"
   } | crontab -
 
+  createConfigFile
+  installDefaultSoftware
   setupCACertificate
   installPostfix
   updateSystem
