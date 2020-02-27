@@ -190,17 +190,7 @@ function disablePasswordAuthentication() {
   systemctl restart sshd
 }
 
-function setupSystem() {
-  chmod +x ${MYNAME}
-
-  disablePasswordAuthentication
-
-  # 1min warten so dass rancher installieren kann
-  sleep 60
-
-  apt -yq update
-  apt -yq upgrade
-
+function setupFirewall() {
   apt-get install -yq jq ufw fail2ban
 
   ${ufw} allow proto tcp from any to any port 22,80,443
@@ -217,21 +207,39 @@ function setupSystem() {
 
   ${ufw} -f default deny incoming
   ${ufw} -f default allow outgoing
+}
 
+function setupCrontab() {
   crontab -l | {
     cat
     echo "* * * * * ${MYNAME}"
   } | crontab -
+}
 
+function setupSystem() {
+  chmod +x ${MYNAME}
+
+  disablePasswordAuthentication
+
+  # apt-get -yq update
+  # apt-get -yq upgrade
+  apt-get -yq install ca-certificates
+
+  if [ -n "$DOCKERINSTALL" ]; then
+    installDocker
+  fi
+
+  # 1min warten so dass rancher erstmal installieren kann
+  sleep 60
+
+  setupFirewall
+  setupCrontab
   createConfigFile
   installDefaultSoftware
   setupCACertificate
   installPostfix
   updateSystem
 
-  if [ -n "$DOCKERINSTALL" ]; then
-    installDocker
-  fi
 }
 
 case $command in
