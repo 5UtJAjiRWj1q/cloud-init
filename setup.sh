@@ -3,7 +3,9 @@
 cd $(dirname $0)
 MYNAME=$(pwd)/$(basename $0)
 
-command="$1"
+CONFIGFILE=/etc/proventis/setup.config
+
+command="${1:-update}"
 shift
 
 while [[ $# -gt 0 ]] ; do
@@ -37,6 +39,7 @@ done
 FLOATING_IPS=${FLOATING_IPS:-""}
 
 export DEBIAN_FRONTEND=noninteractive
+alias ufw=/usr/sbin/ufw
 
 function apt-get() {
   i=0
@@ -58,6 +61,10 @@ function apt-get() {
 }
 
 function updateSystem() {
+  if [ -f "$CONFIGFILE" ]; then
+    source $CONFIGFILE
+  fi
+
   NEW_NODE_IPS=( $(curl -s -H 'Accept: application/json' -H "Authorization: Bearer ${TOKEN}" 'https://api.hetzner.cloud/v1/servers' | jq -r '.servers[].public_net.ipv4.ip') )
 
   touch /etc/current_node_ips
@@ -146,6 +153,28 @@ EOF
   update-ca-certificates
 }
 
+function installPostfix() {
+  debconf-set-selections <<< "postfix postfix/mailname string $(hostname -s).cluster.proventis.info"
+  debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
+  apt-get -yq install postfix
+  echo "root: webmaster@proventis.net" >> /etc/aliases
+  newaliases
+  mailhost="$(hostname -f).cluster.proventis.info"
+  postconf -e "inet_interfaces=loopback-only"
+  postconf -e "myhostname=${mailhost}"
+  postconf -e "mydomain=${mailhost}"
+  postfix reload
+}
+
+function createConfigFile() {
+  mkdir -p $(dirname $CONFIGFILE)
+  cat > $CONFIGFILE << EOF
+TOKEN=${TOKEN}
+WHITELIST_S=${WHITELIST_S}
+FLOATING_IPS=${FLOATING_IPS}
+EOF
+}
+
 function setupSystem() {
   chmod +x ${MYNAME}
 
@@ -172,10 +201,11 @@ function setupSystem() {
 
   crontab -l | {
     cat
-    echo "* * * * * ${MYNAME} update --hcloud-token ${TOKEN} --whitelisted-ips ${WHITELIST_S} ${FLOATING_IPS}"
+    echo "* * * * * ${MYNAME}"
   } | crontab -
 
   setupCACertificate
+  installPostfix
   updateSystem
 
   if [ -n "$DOCKERINSTALL" ]; then
