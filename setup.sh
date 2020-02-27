@@ -222,7 +222,7 @@ function setupSystem() {
   disablePasswordAuthentication
 
   # apt-get -yq update
-  # apt-get -yq upgrade
+  apt-get -yq upgrade
   apt-get -yq install ca-certificates
 
   if [ -n "$DOCKERINSTALL" ]; then
