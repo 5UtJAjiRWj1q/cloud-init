@@ -221,6 +221,9 @@ function setupSystem() {
 
   disablePasswordAuthentication
 
+  # warten so dass rancher erstmal installieren kann
+  sleep 5m
+
   # apt-get -yq update
   apt-get -yq upgrade
   apt-get -yq install ca-certificates
@@ -228,9 +231,6 @@ function setupSystem() {
   if [ -n "$DOCKERINSTALL" ]; then
     installDocker
   fi
-
-  # 1min warten so dass rancher erstmal installieren kann
-  sleep 180
 
   setupFirewall
   setupCrontab
