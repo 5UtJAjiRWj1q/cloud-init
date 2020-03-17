@@ -230,7 +230,7 @@ function setupSystem() {
   fi
 
   # 1min warten so dass rancher erstmal installieren kann
-  sleep 60
+  sleep 180
 
   setupFirewall
   setupCrontab
