@@ -26,6 +26,10 @@ while [[ $# -gt 0 ]] ; do
         DOCKERINSTALL="1"
         shift
       ;;
+    --local)
+        LOCALINSTALL="1"
+        shift
+      ;;
     --floating-ips)
         FLOATING_IPS="--floating-ips"
         shift
@@ -221,8 +225,10 @@ function setupSystem() {
 
   disablePasswordAuthentication
 
-  # warten so dass rancher erstmal installieren kann
-  sleep 5m
+  if [ -z  "$LOCALINSTALL" ]; then
+    # warten so dass rancher erstmal installieren kann
+    sleep 5m
+  fi
 
   # apt-get -yq update
   apt-get -yq upgrade
