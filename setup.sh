@@ -230,7 +230,9 @@ function setupSystem() {
     sleep 5m
   fi
 
-  # apt-get -yq update
+  if [ -n "$LOCALINSTALL" ]; then
+    apt-get -yq update
+  fi
   apt-get -yq upgrade
   apt-get -yq install ca-certificates
 
