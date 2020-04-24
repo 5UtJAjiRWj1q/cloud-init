@@ -228,9 +228,7 @@ function setupSystem() {
   if [ -z  "$LOCALINSTALL" ]; then
     # warten so dass rancher erstmal installieren kann
     sleep 5m
-  fi
-
-  if [ -n "$LOCALINSTALL" ]; then
+  else
     apt-get -yq update
   fi
   apt-get -yq upgrade
