@@ -23,11 +23,7 @@ while [[ $# -gt 0 ]] ; do
   esac
 done
 
-FLOATING_IPS=${FLOATING_IPS:-""}
-
 export DEBIAN_FRONTEND=noninteractive
-
-ufw=/usr/sbin/ufw
 
 function apt-get() {
   i=0
