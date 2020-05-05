@@ -57,7 +57,7 @@ function installDocker() {
 }
 
 function installDefaultSoftware() {
-  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi
+  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi ufw
   cat > $HOME/.bash_aliases <<EOF
 alias l='ls -CF'
 alias mc='. /usr/share/mc/bin/mc-wrapper.sh'
@@ -132,10 +132,11 @@ function setupSystem() {
   if [ -z  "$LOCALINSTALL" ]; then
     # warten so dass rancher erstmal installieren kann
     sleep 5m
+    apt-get -yq upgrade
   else
     apt-get -yq update
+    apt-get -yq dist-upgrade
   fi
-  apt-get -yq upgrade
   installDefaultSoftware
   setupCACertificate
   installPostfix
