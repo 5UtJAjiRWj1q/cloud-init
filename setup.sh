@@ -57,7 +57,7 @@ function installDocker() {
 }
 
 function installDefaultSoftware() {
-  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi ufw
+  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi ufw dstat
   cat > $HOME/.bash_aliases <<EOF
 alias l='ls -CF'
 alias mc='. /usr/share/mc/bin/mc-wrapper.sh'
