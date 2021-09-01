@@ -59,7 +59,7 @@ function installDocker() {
 }
 
 function installDefaultSoftware() {
-  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi ufw dstat
+  apt-get -yq install apt-transport-https ca-certificates curl gnupg2 software-properties-common rsync mc open-iscsi ufw dstat fail2ban
   cat > $HOME/.bash_aliases <<EOF
 alias l='ls -CF'
 alias mc='. /usr/share/mc/bin/mc-wrapper.sh'
@@ -126,6 +126,21 @@ function disablePasswordAuthentication() {
   systemctl restart sshd
 }
 
+function setupFirewall() {
+  ufw allow proto tcp from any to any port 22,80,443,6443
+
+  ufw allow from 10.43.0.0/16
+  ufw allow from 10.42.0.0/16
+  ufw allow from 10.0.0.0/16
+
+  ufw allow from 217.111.101.34
+
+  ufw -f default deny incoming
+  ufw -f default allow outgoing
+
+  ufw enable <<< "y"
+}
+
 function setupSystem() {
   chmod +x ${MYNAME}
 
@@ -142,6 +157,7 @@ function setupSystem() {
   installDefaultSoftware
   setupCACertificate
   installPostfix
+  setupFirewall
 
   if [ -n "$DOCKERINSTALL" ]; then
     installDocker
