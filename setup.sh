@@ -50,7 +50,8 @@ function installDocker() {
     curl -fsSL https://download.docker.com/linux/${ID}/gpg | apt-key add -
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/${ID} $(lsb_release -cs) stable"
     apt-get -yq update
-    apt-get -yq install docker-ce docker-ce-cli containerd.io
+    DOCKER_VERSION=$(apt list -a docker-ce 2>/dev/null | awk '{print $2;}' | grep "19." | head -n 1)
+    ( set -x ; apt-get -yq --allow-downgrades install "docker-ce=$DOCKER_VERSION" "docker-ce-cli=$DOCKER_VERSION" containerd.io )
     systemctl enable docker
     systemctl start docker
   )
