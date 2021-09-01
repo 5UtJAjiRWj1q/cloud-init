@@ -52,7 +52,7 @@ function installDocker() {
     apt-get -yq update
     #DOCKER_VERSION=$(apt list -a docker-ce 2>/dev/null | awk '{print $2;}' | grep "19." | head -n 1)
     #( set -x ; apt-get -yq --allow-downgrades install "docker-ce=$DOCKER_VERSION" "docker-ce-cli=$DOCKER_VERSION" containerd.io )
-    ( set -x ; apt-get -yq --allow-downgrades install "docker-ce "docker-ce-cli containerd.io )
+    ( set -x ; apt-get -yq --allow-downgrades install "docker-ce" "docker-ce-cli" containerd.io )
     systemctl enable docker
     systemctl start docker
   )
