@@ -132,6 +132,7 @@ function setupFirewall() {
   ufw allow from 10.43.0.0/16
   ufw allow from 10.42.0.0/16
   ufw allow from 10.0.0.0/16
+  ufw allow from 10.244.0.0/16
 
   ufw allow from 217.111.101.34
 
