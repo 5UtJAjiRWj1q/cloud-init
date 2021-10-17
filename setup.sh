@@ -159,11 +159,19 @@ function setupSystem() {
   setupCACertificate
   installPostfix
   setupFirewall
+  applySysconfig
 
   if [ -n "$DOCKERINSTALL" ]; then
     installDocker
   fi
 
+}
+
+function applySysconfig() {
+  echo "vm.max_map_count=524288" >> /etc/sysctl.conf
+
+  echo "* hard nofile 131072" >> /etc/security/limits.conf
+  echo "root hard nofile 131072" >> /etc/security/limits.conf
 }
 
 setupSystem
